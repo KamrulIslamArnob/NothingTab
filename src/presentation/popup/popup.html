@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quick Add</title>
+  <link rel="stylesheet" href="popup.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Doto:wght@400;500&family=Space+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="popup-header">
+      <h1>Save Shortcut</h1>
+      <p>Add this page to your dashboard</p>
+    </header>
+
+    <form id="add-form" class="popup-form">
+      <div class="input-group">
+        <label for="bm-category">Category</label>
+        <div class="select-wrapper">
+          <select id="bm-category" required>
+            <option value="" disabled selected>Loading...</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label for="bm-title">Title</label>
+        <input type="text" id="bm-title" placeholder="Name" required autocomplete="off">
+      </div>
+
+      <div class="input-group">
+        <label for="bm-url">URL</label>
+        <input type="url" id="bm-url" placeholder="https://" required autocomplete="off">
+      </div>
+
+      <div id="bm-error" class="error-msg"></div>
+
+      <div class="popup-actions">
+        <button type="submit" id="bm-submit" class="btn-primary">Save to Dashboard</button>
+      </div>
+    </form>
+  </div>
+
+  <script type="module" src="popupController.js"></script>
+</body>
+</html>

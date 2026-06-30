@@ -1,0 +1,125 @@
+import { Id } from "../valueObjects/Id.js";
+
+// Domain entity: Task
+// Represents one item in the dashboard to-do list.
+export class Task {
+  #id;
+  #title;
+  #completed;
+  #order;
+  #scheduledTime;
+  #durationMinutes;
+
+  constructor({ id, title, completed = false, order = 0, scheduledTime = "", durationMinutes = null }) {
+    if (!(id instanceof Id)) throw new Error("Task id must be an Id");
+    if (typeof title !== "string" || title.trim().length === 0) {
+      throw new Error("Task title must be a non-empty string");
+    }
+    if (title.length > 200) throw new Error("Task title must be <= 200 chars");
+    if (typeof completed !== "boolean") {
+      throw new Error("Task completed must be a boolean");
+    }
+    if (!Number.isInteger(order) || order < 0) {
+      throw new Error("Task order must be a non-negative integer");
+    }
+    if (typeof scheduledTime !== "string") {
+      throw new Error("Task scheduledTime must be a string");
+    }
+    if (scheduledTime && !/^([01]\d|2[0-3]):[0-5]\d$/.test(scheduledTime)) {
+      throw new Error("Task scheduledTime must be HH:MM");
+    }
+    if (durationMinutes !== null && (!Number.isInteger(durationMinutes) || durationMinutes < 5 || durationMinutes > 1440)) {
+      throw new Error("Task durationMinutes must be between 5 and 1440");
+    }
+
+    this.#id = id;
+    this.#title = title.trim();
+    this.#completed = completed;
+    this.#order = order;
+    this.#scheduledTime = scheduledTime;
+    this.#durationMinutes = durationMinutes;
+  }
+
+  get id() {
+    return this.#id;
+  }
+  get title() {
+    return this.#title;
+  }
+  get completed() {
+    return this.#completed;
+  }
+  get order() {
+    return this.#order;
+  }
+  get scheduledTime() {
+    return this.#scheduledTime;
+  }
+  get durationMinutes() {
+    return this.#durationMinutes;
+  }
+
+  rename(newTitle) {
+    if (typeof newTitle !== "string" || newTitle.trim().length === 0) {
+      throw new Error("Task title must be a non-empty string");
+    }
+    if (newTitle.length > 200) {
+      throw new Error("Task title must be <= 200 chars");
+    }
+    this.#title = newTitle.trim();
+  }
+
+  toggle() {
+    this.#completed = !this.#completed;
+  }
+
+  setCompleted(value) {
+    if (typeof value !== "boolean") {
+      throw new Error("Task completed must be a boolean");
+    }
+    this.#completed = value;
+  }
+
+  reorder(newOrder) {
+    if (!Number.isInteger(newOrder) || newOrder < 0) {
+      throw new Error("Task order must be a non-negative integer");
+    }
+    this.#order = newOrder;
+  }
+
+  schedule(scheduledTime, durationMinutes) {
+    if (typeof scheduledTime !== "string") {
+      throw new Error("Task scheduledTime must be a string");
+    }
+    if (scheduledTime && !/^([01]\d|2[0-3]):[0-5]\d$/.test(scheduledTime)) {
+      throw new Error("Task scheduledTime must be HH:MM");
+    }
+    if (durationMinutes !== null && durationMinutes !== undefined && (!Number.isInteger(durationMinutes) || durationMinutes < 5 || durationMinutes > 1440)) {
+      throw new Error("Task durationMinutes must be between 5 and 1440");
+    }
+    this.#scheduledTime = scheduledTime;
+    this.#durationMinutes = durationMinutes ?? null;
+  }
+
+  toJSON() {
+    return {
+      id: this.#id.value,
+      title: this.#title,
+      completed: this.#completed,
+      order: this.#order,
+      scheduledTime: this.#scheduledTime,
+      durationMinutes: this.#durationMinutes,
+    };
+  }
+
+  static fromJSON(json) {
+    return new Task({
+      id: new Id(json.id),
+      title: json.title,
+      completed: !!json.completed,
+      order: Number.isInteger(json.order) ? json.order : 0,
+      scheduledTime: typeof json.scheduledTime === "string" ? json.scheduledTime : "",
+      durationMinutes: Number.isInteger(json.durationMinutes) ? json.durationMinutes : null,
+    });
+  }
+}

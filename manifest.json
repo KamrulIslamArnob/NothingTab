@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "NothingTab",
+  "version": "0.2.0",
+  "description": "An open-source Chrome new tab extension built with a Nothing-inspired interface.",
+  "chrome_url_overrides": {
+    "newtab": "src/presentation/newTab/newTab.html"
+  },
+  "action": {
+    "default_title": "Quick-add to Dashboard",
+    "default_popup": "src/presentation/popup/popup.html",
+    "default_icon": {
+      "16": "public/icons/icon16.png",
+      "32": "public/icons/icon32.png",
+      "48": "public/icons/icon48.png",
+      "128": "public/icons/icon128.png"
+    }
+  },
+  "options_ui": {
+    "page": "src/presentation/options/options.html",
+    "open_in_tab": true
+  },
+  "permissions": ["storage", "activeTab", "unlimitedStorage", "downloads"],
+  "omnibox": { "keyword": "nt" },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' data: blob: https:;"
+  },
+  "background": {
+    "service_worker": "src/presentation/shared/serviceWorker.js",
+    "type": "module"
+  },
+  "icons": {
+    "16": "public/icons/icon16.png",
+    "32": "public/icons/icon32.png",
+    "48": "public/icons/icon48.png",
+    "128": "public/icons/icon128.png"
+  }
+}

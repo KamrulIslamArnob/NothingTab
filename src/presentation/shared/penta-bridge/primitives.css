@@ -1,0 +1,219 @@
+/*
+ * Penta Bridge — Primitive Utilities
+ * --------------------------------------------------------------------
+ * Reusable atomic styles consumed by primitives/. NO component logic
+ * lives here — only token-driven visual primitives.
+ */
+
+/* ─────────────────────────────────────────────────────────────────────
+   Scrollable container — single-line flex, hidden scrollbar,
+   draggable cursor, non-selectable children.
+
+   Usage: any element with class="pb-scroller" gains:
+     • horizontal scroll (overflow-x:auto)
+     • no visible scrollbar in any browser
+     • grab/grabbing cursor states
+   ───────────────────────────────────────────────────────────────────── */
+.pb-scroller {
+  display: flex;
+  flex-wrap: nowrap;          /* stay on one line — must overflow */
+  align-items: center;
+  gap: var(--pb-space-2);
+
+  min-height: var(--pb-space-8);   /* never collapse to zero height */
+  min-width: 0;                    /* allow shrinking inside flex parent */
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  /* Firefox: hide scrollbar */
+  scrollbar-width: none;
+  /* Legacy IE/Edge */
+  -ms-overflow-style: none;
+
+  /* Prevent text selection during drag */
+  user-select: none;
+  -webkit-user-select: none;
+
+  /* Grab cursor by default; flip to grabbing while .is-active */
+  cursor: grab;
+  touch-action: pan-x;        /* allow native horizontal pan on touch */
+  scroll-behavior: smooth;
+}
+
+.pb-scroller.is-active {
+  cursor: grabbing;
+  scroll-behavior: auto;      /* drag should be 1:1, not animated */
+}
+
+/* Chrome / Safari / modern Edge: hide scrollbar */
+.pb-scroller::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Children should not interrupt drag with text-selection highlights */
+.pb-scroller > * {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   Scroll arrow buttons — sit on either side of a pb-scroller.
+
+   Hidden (not removed) when disabled, so layout doesn't jump. The
+   primitive toggles the [disabled] attribute; CSS fades them out.
+   ───────────────────────────────────────────────────────────────────── */
+.pb-scroll-arrow {
+  flex-shrink: 0;
+  width: var(--pb-space-8);
+  height: var(--pb-space-8);
+  min-height: var(--pb-space-8);
+  min-width: var(--pb-space-8);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--pb-surface-2);
+  border: 1px solid var(--pb-surface-border);
+  border-radius: var(--pb-radius-pill);
+
+  color: var(--pb-text-secondary);
+  font-family: var(--pb-font-secondary);
+  font-size: var(--pb-fs-md);
+  line-height: 1;
+  cursor: pointer;
+
+  transition:
+    opacity var(--pb-duration-fast) var(--pb-ease-out),
+    color var(--pb-duration-fast) var(--pb-ease-out),
+    border-color var(--pb-duration-fast) var(--pb-ease-out);
+}
+
+.pb-scroll-arrow:hover:not([disabled]) {
+  color: var(--pb-text-display);
+  border-color: var(--pb-surface-border-strong);
+}
+
+.pb-scroll-arrow[disabled],
+.pb-scroll-arrow.is-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.pb-scroll-arrow svg {
+  width: var(--pb-space-4);
+  height: var(--pb-space-4);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   Category tab — a generic pill-shaped button used inside the tabs
+   scroller. Widgets compose this primitive but own their own active
+   state via the .is-active class.
+   ───────────────────────────────────────────────────────────────────── */
+.pb-tab {
+  flex-shrink: 0;            /* never compress inside the scroller */
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: var(--pb-space-8);
+  padding: 0 var(--pb-space-4);
+
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--pb-radius-pill);
+
+  color: var(--pb-text-secondary);
+  font-family: var(--pb-font-secondary);
+  font-size: var(--pb-fs-sm);
+  text-transform: uppercase;
+  letter-spacing: var(--pb-tracking-wider);
+  white-space: nowrap;
+
+  cursor: pointer;
+  transition:
+    color var(--pb-duration-fast) var(--pb-ease-out),
+    border-color var(--pb-duration-fast) var(--pb-ease-out),
+    background var(--pb-duration-fast) var(--pb-ease-out);
+}
+
+.pb-tab:hover {
+  color: var(--pb-text-display);
+}
+
+.pb-tab.is-active {
+  color: var(--pb-text-display);
+  border-color: var(--pb-surface-border-strong);
+}
+
+.pb-tab__add {
+  color: var(--pb-accent);
+  font-family: var(--pb-font-display);
+  font-size: var(--pb-fs-md);
+  border-color: transparent;
+}
+.pb-tab__add:hover {
+  opacity: 0.85;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   Halftone dot grid — see primitives/halftone.js. The SVG itself is
+   built in JS; this block owns the live-pulse animation so widgets
+   don't need to ship their own keyframes.
+   ───────────────────────────────────────────────────────────────────── */
+.pb-halftone {
+  pointer-events: none;       /* purely decorative */
+  overflow: visible;
+}
+
+.pb-halftone__base ellipse {
+  /* transitions let density changes feel "breathing" rather than snapping */
+  transition:
+    fill var(--pb-duration-med) var(--pb-ease-out),
+    opacity var(--pb-duration-med) var(--pb-ease-out);
+}
+
+.pb-halftone__pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pb-halftone-pulse 1.6s var(--pb-ease-out) infinite;
+}
+
+@keyframes pb-halftone-pulse {
+  0%   { transform: scale(1);   opacity: 1;   }
+  50%  { transform: scale(2.4); opacity: 0;   }
+  100% { transform: scale(1);   opacity: 1;   }
+}
+
+/* Reduced motion: kill the pulse animation, keep the dot visible. */
+@media (prefers-reduced-motion: reduce) {
+  .pb-halftone__pulse { animation: none; }
+  .pb-halftone__base ellipse { transition: none; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   Live card — the 320x152 / 152x152 family used by the redesigned
+   widgets. Mirror of the Weather.svg / Watch.svg tiles.
+   ───────────────────────────────────────────────────────────────────── */
+.pb-live-card {
+  position: relative;
+  display: block;
+  background: var(--pb-surface-dark);
+  border-radius: var(--pb-card-radius);
+  padding: var(--pb-card-padding);
+  overflow: hidden;
+  isolation: isolate;          /* keep halftone contained */
+}
+
+.pb-live-card--tile {
+  border-radius: var(--pb-tile-radius);
+  aspect-ratio: 1 / 1;
+}
+
+.pb-live-card__ink-1 { color: var(--pb-ink-1); }
+.pb-live-card__ink-2 { color: var(--pb-ink-2); }
+.pb-live-card__ink-3 { color: var(--pb-ink-3); }

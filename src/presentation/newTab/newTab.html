@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>New Tab</title>
+    <link rel="icon" type="image/png" href="../../../public/icons/icon32.png" />
+    <!-- Critical inline CSS: applies the default dark background so the
+         first paint is never white. BackgroundView will update this on load. -->
+    <style>
+      html, body { background-color: #000000; margin: 0; padding: 0; }
+      body:not(.fonts-loaded) .clock-time-large {
+        display: none !important;
+      }
+      body:not(.fonts-loaded) .clock-placeholder {
+        display: block !important;
+        height: clamp(64px, 12vw, 120px);
+        width: clamp(200px, 30vw, 400px);
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        margin: 0 auto;
+        animation: pulse-skeleton 1.2s ease-in-out infinite;
+      }
+      .clock-placeholder {
+        display: none;
+      }
+      @keyframes pulse-skeleton {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 0.6; }
+      }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Doto:wght@400..900&family=Space+Grotesk:wght@300..700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Doto:wght@400..900&family=Space+Grotesk:wght@300..700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/styles/tokens.css" />
+    <link rel="stylesheet" href="../shared/styles/base.css" />
+    <link rel="stylesheet" href="../shared/penta-bridge/tokens.css" />
+    <link rel="stylesheet" href="../shared/penta-bridge/primitives.css" />
+    <link rel="stylesheet" href="newTab.css" />
+  </head>
+  <body>
+    <div id="app" class="app"></div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="newTabController.js"></script>
+  </body>
+</html>
