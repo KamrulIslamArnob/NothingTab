@@ -1,16 +1,9 @@
 import { Id } from "../../../domain/valueObjects/Id.js";
 
-export class DeleteBookmarkUseCase {
-  #bookmarkRepo;
-  #events;
+import { BaseDeleteUseCase } from "../shared/BaseDeleteUseCase.js";
 
+export class DeleteBookmarkUseCase extends BaseDeleteUseCase {
   constructor({ bookmarkRepo, events }) {
-    this.#bookmarkRepo = bookmarkRepo;
-    this.#events = events;
-  }
-
-  async execute({ id }) {
-    await this.#bookmarkRepo.delete(new Id(id));
-    this.#events.emit("bookmarks:changed", undefined);
+    super(bookmarkRepo, events, "bookmarks:changed");
   }
 }

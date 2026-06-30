@@ -1,16 +1,9 @@
 import { Id } from "../../../domain/valueObjects/Id.js";
 
-export class DeleteTaskUseCase {
-  #repo;
-  #events;
+import { BaseDeleteUseCase } from "../shared/BaseDeleteUseCase.js";
 
+export class DeleteTaskUseCase extends BaseDeleteUseCase {
   constructor({ repo, events }) {
-    this.#repo = repo;
-    this.#events = events;
-  }
-
-  async execute({ id }) {
-    await this.#repo.delete(new Id(id));
-    this.#events.emit("tasks:changed", undefined);
+    super(repo, events, "tasks:changed");
   }
 }

@@ -1,21 +1,15 @@
 import { Id } from "../../../domain/valueObjects/Id.js";
 
-export class ResizeWidgetUseCase {
-  #repo;
-  #events;
+import { BaseWidgetUseCase } from "../shared/BaseWidgetUseCase.js";
 
-  constructor({ repo, events }) {
-    this.#repo = repo;
-    this.#events = events;
+export class ResizeWidgetUseCase extends BaseWidgetUseCase {
+  constructor(deps) {
+    super(deps);
   }
 
   async execute({ id, w, h }) {
-    const all = await this.#repo.list();
-    const widget = all.find((w2) => w2.id.equals(new Id(id)));
-    if (!widget) throw new Error("Widget not found");
-    widget.resizeTo(w, h);
-    await this.#repo.save(widget);
-    this.#events.emit("layout:changed", undefined);
-    return widget;
+    return this._modifyWidget(id, (widget) => {
+      widget.resizeTo(w, h);
+    });
   }
 }

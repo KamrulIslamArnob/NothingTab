@@ -12,25 +12,11 @@ export class Task {
 
   constructor({ id, title, completed = false, order = 0, scheduledTime = "", durationMinutes = null }) {
     if (!(id instanceof Id)) throw new Error("Task id must be an Id");
-    if (typeof title !== "string" || title.trim().length === 0) {
-      throw new Error("Task title must be a non-empty string");
-    }
-    if (title.length > 200) throw new Error("Task title must be <= 200 chars");
-    if (typeof completed !== "boolean") {
-      throw new Error("Task completed must be a boolean");
-    }
-    if (!Number.isInteger(order) || order < 0) {
-      throw new Error("Task order must be a non-negative integer");
-    }
-    if (typeof scheduledTime !== "string") {
-      throw new Error("Task scheduledTime must be a string");
-    }
-    if (scheduledTime && !/^([01]\d|2[0-3]):[0-5]\d$/.test(scheduledTime)) {
-      throw new Error("Task scheduledTime must be HH:MM");
-    }
-    if (durationMinutes !== null && (!Number.isInteger(durationMinutes) || durationMinutes < 5 || durationMinutes > 1440)) {
-      throw new Error("Task durationMinutes must be between 5 and 1440");
-    }
+    Task.#validateTitle(title);
+    Task.#validateCompleted(completed);
+    Task.#validateOrder(order);
+    Task.#validateScheduledTime(scheduledTime);
+    Task.#validateDurationMinutes(durationMinutes);
 
     this.#id = id;
     this.#title = title.trim();
@@ -60,12 +46,7 @@ export class Task {
   }
 
   rename(newTitle) {
-    if (typeof newTitle !== "string" || newTitle.trim().length === 0) {
-      throw new Error("Task title must be a non-empty string");
-    }
-    if (newTitle.length > 200) {
-      throw new Error("Task title must be <= 200 chars");
-    }
+    Task.#validateTitle(newTitle);
     this.#title = newTitle.trim();
   }
 
@@ -74,29 +55,18 @@ export class Task {
   }
 
   setCompleted(value) {
-    if (typeof value !== "boolean") {
-      throw new Error("Task completed must be a boolean");
-    }
+    Task.#validateCompleted(value);
     this.#completed = value;
   }
 
   reorder(newOrder) {
-    if (!Number.isInteger(newOrder) || newOrder < 0) {
-      throw new Error("Task order must be a non-negative integer");
-    }
+    Task.#validateOrder(newOrder);
     this.#order = newOrder;
   }
 
   schedule(scheduledTime, durationMinutes) {
-    if (typeof scheduledTime !== "string") {
-      throw new Error("Task scheduledTime must be a string");
-    }
-    if (scheduledTime && !/^([01]\d|2[0-3]):[0-5]\d$/.test(scheduledTime)) {
-      throw new Error("Task scheduledTime must be HH:MM");
-    }
-    if (durationMinutes !== null && durationMinutes !== undefined && (!Number.isInteger(durationMinutes) || durationMinutes < 5 || durationMinutes > 1440)) {
-      throw new Error("Task durationMinutes must be between 5 and 1440");
-    }
+    Task.#validateScheduledTime(scheduledTime);
+    Task.#validateDurationMinutes(durationMinutes);
     this.#scheduledTime = scheduledTime;
     this.#durationMinutes = durationMinutes ?? null;
   }
@@ -121,5 +91,39 @@ export class Task {
       scheduledTime: typeof json.scheduledTime === "string" ? json.scheduledTime : "",
       durationMinutes: Number.isInteger(json.durationMinutes) ? json.durationMinutes : null,
     });
+  }
+
+  static #validateTitle(title) {
+    if (typeof title !== "string" || title.trim().length === 0) {
+      throw new Error("Task title must be a non-empty string");
+    }
+    if (title.length > 200) throw new Error("Task title must be <= 200 chars");
+  }
+
+  static #validateCompleted(completed) {
+    if (typeof completed !== "boolean") {
+      throw new Error("Task completed must be a boolean");
+    }
+  }
+
+  static #validateOrder(order) {
+    if (!Number.isInteger(order) || order < 0) {
+      throw new Error("Task order must be a non-negative integer");
+    }
+  }
+
+  static #validateScheduledTime(scheduledTime) {
+    if (typeof scheduledTime !== "string") {
+      throw new Error("Task scheduledTime must be a string");
+    }
+    if (scheduledTime && !/^([01]\d|2[0-3]):[0-5]\d$/.test(scheduledTime)) {
+      throw new Error("Task scheduledTime must be HH:MM");
+    }
+  }
+
+  static #validateDurationMinutes(durationMinutes) {
+    if (durationMinutes !== null && durationMinutes !== undefined && (!Number.isInteger(durationMinutes) || durationMinutes < 5 || durationMinutes > 1440)) {
+      throw new Error("Task durationMinutes must be between 5 and 1440");
+    }
   }
 }
