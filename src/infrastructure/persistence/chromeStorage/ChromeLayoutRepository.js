@@ -1,51 +1,34 @@
 import { LayoutRepository } from "../../../domain/repositories/repositories.js";
 import { WidgetLayout } from "../../../domain/entities/WidgetLayout.js";
+import { BaseChromeListRepository } from "./BaseChromeListRepository.js";
 
 const KEY = "layout";
 
 export class ChromeLayoutRepository extends LayoutRepository {
-  #storage;
-  #cache = null;
+  #base;
 
   constructor(storage) {
     super();
-    this.#storage = storage;
-  }
-
-  async #load() {
-    if (this.#cache) return this.#cache;
-    const rows = await this.#storage.getAll(KEY);
-    this.#cache = Array.isArray(rows)
-      ? rows.map((r) => WidgetLayout.fromJSON(r))
-      : [];
-    return this.#cache;
-  }
-
-  async #flush() {
-    await this.#storage.set(
-      KEY,
-      this.#cache.map((w) => w.toJSON()),
-    );
+    this.#base = new BaseChromeListRepository(storage, KEY, WidgetLayout.fromJSON);
   }
 
   invalidate() {
-    this.#cache = null;
+    this.#base.invalidate();
   }
 
   async list() {
-    return [...(await this.#load())];
+    return this.#base.list();
+  }
+
+  async findById(id) {
+    return this.#base.findById(id);
   }
 
   async save(widget) {
-    const all = await this.#load();
-    const idx = all.findIndex((w) => w.id.equals(widget.id));
-    if (idx >= 0) all[idx] = widget;
-    else all.push(widget);
-    await this.#flush();
+    return this.#base.save(widget);
   }
 
   async saveAll(widgets) {
-    this.#cache = [...widgets];
-    await this.#flush();
+    return this.#base.setAll(widgets);
   }
 }

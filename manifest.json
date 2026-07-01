@@ -20,7 +20,7 @@
     "page": "src/presentation/options/options.html",
     "open_in_tab": true
   },
-  "permissions": ["storage", "activeTab", "unlimitedStorage", "downloads"],
+  "permissions": ["storage", "unlimitedStorage"],
   "omnibox": { "keyword": "nt" },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' data: blob: https:;"

@@ -14,12 +14,20 @@ export class WeatherView {
 
   render(settings) {
     this.settings = settings;
+    
+    if (this.root) {
+      // Already rendered, just update
+      this.update();
+      return this.root;
+    }
+
     this.root = el("div", { className: "nothing-widget weather-widget" });
     this.update();
-
     this.fetchData();
-    if (this.intervalId) clearInterval(this.intervalId);
-    this.intervalId = setInterval(() => this.fetchData(), 30 * 60 * 1000);
+
+    if (!this.intervalId) {
+      this.intervalId = setInterval(() => this.fetchData(), 30 * 60 * 1000);
+    }
 
     return this.root;
   }

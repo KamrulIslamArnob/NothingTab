@@ -53,9 +53,20 @@ export class CombinedClockView {
     this.unsub = null;
     this.root = null;
     this.settings = null;
+    // Elements for updating text content
+    this._mainTimeEl = null;
+    this._worldTimeEl = null;
+    this._dayIcon = null;
+    this._cachedCity = { name: "Barcelona", timezone: "Europe/Madrid", country: "Spain" };
   }
 
   render(settings) {
+    if (this.root) {
+      // Already rendered, just update settings
+      this.settings = settings;
+      return this.root;
+    }
+
     this.settings = settings;
     this.root = el("div", { className: "combined-clock-widget" });
     this._buildClockMode();
@@ -69,49 +80,53 @@ export class CombinedClockView {
 
   _buildClockMode() {
     if (this.intervalId) clearInterval(this.intervalId);
-    this._renderClock();
-    this.intervalId = setInterval(() => this._renderClock(), 1000);
+    // Build the DOM once on first call only
+    if (!this._mainTimeEl) {
+      const settings = this.settings;
+      const fmt = settings?.timeFormat;
+      const is24h = fmt?.equals?.("24h") ?? (fmt?.value === "24h") ?? false;
+      const c = this._cachedCity;
+      const offset = getUtcOffset(c.timezone);
+      this._dayIcon = icon(isDaytime(c.timezone) ? "sun" : "moon");
+      this._dayIcon.classList.add("ccw-moon-icon");
+      
+      this._mainTimeEl = el("h1", {
+        className: "ccw-main-time",
+        title: "Click to start Pomodoro timer",
+      }, "");
+      
+      this._mainTimeEl.addEventListener("click", () => this._switchToPomodoro());
+
+      const topSection = el("div", { className: "ccw-top" }, this._mainTimeEl);
+      const divider = el("div", { className: "ccw-divider" });
+
+      this._worldTimeEl = el("div", { className: "ccw-world-time" }, "");
+      const bottomSection = el("div", { className: "ccw-bottom" },
+        el("div", { className: "ccw-icon-col" }, this._dayIcon),
+        el("div", { className: "ccw-info-col" },
+          el("div", { className: "ccw-world-title" }, `WORLD CLOCK (${c.name})`),
+          el("div", { className: "ccw-world-detail" }, `TIMEZONE: ${getUtcOffset(c.timezone)}`),
+          el("div", { className: "ccw-world-detail" }, c.country)
+        ),
+        el("div", { className: "ccw-time-col" }, this._worldTimeEl)
+      );
+      
+      this.root.replaceChildren(topSection, divider, bottomSection);
+    }
+    this._updateClockText();
+    this.intervalId = setInterval(() => this._updateClockText(), 1000);
   }
 
-  _renderClock() {
+  _updateClockText() {
     if (!this.root || this.mode !== "clock") return;
     const settings = this.settings;
     const fmt = settings?.timeFormat;
     const is24h = fmt?.equals?.("24h") ?? (fmt?.value === "24h") ?? false;
+    const c = this._cachedCity;
     
-    // Main Time
-    const mainTimeStr = formatTimeForZone(undefined, is24h, true);
-    const mainTimeEl = el("h1", {
-      className: "ccw-main-time",
-      title: "Click to start Pomodoro timer",
-    }, mainTimeStr);
-    
-    mainTimeEl.addEventListener("click", () => this._switchToPomodoro());
-
-    const topSection = el("div", { className: "ccw-top" }, mainTimeEl);
-    const divider = el("div", { className: "ccw-divider" });
-
-    // World Time (Default Barcelona as requested)
-    const c = { name: "Barcelona", timezone: "Europe/Madrid", country: "Spain" };
-    const offset = getUtcOffset(c.timezone);
-    const dayIcon = icon(isDaytime(c.timezone) ? "sun" : "moon");
-    dayIcon.classList.add("ccw-moon-icon");
-
-    const worldTimeStr = formatTimeForZone(c.timezone, is24h, false);
-
-    const bottomSection = el("div", { className: "ccw-bottom" },
-      el("div", { className: "ccw-icon-col" }, dayIcon),
-      el("div", { className: "ccw-info-col" },
-        el("div", { className: "ccw-world-title" }, `WORLD CLOCK (${c.name})`),
-        el("div", { className: "ccw-world-detail" }, `TIMEZONE: ${offset}`),
-        el("div", { className: "ccw-world-detail" }, c.country)
-      ),
-      el("div", { className: "ccw-time-col" },
-        el("div", { className: "ccw-world-time" }, worldTimeStr)
-      )
-    );
-
-    this.root.replaceChildren(topSection, divider, bottomSection);
+    // Update only text
+    this._mainTimeEl.textContent = formatTimeForZone(undefined, is24h, true);
+    this._worldTimeEl.textContent = formatTimeForZone(c.timezone, is24h, false);
   }
 
   _switchToPomodoro() {

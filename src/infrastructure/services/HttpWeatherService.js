@@ -3,10 +3,10 @@ import { WeatherService } from "../../application/ports/WeatherService.js";
 // Infrastructure adapter: HttpWeatherService
 // Connects to free Open-Meteo geocoding and forecasting API endpoints.
 export class HttpWeatherService extends WeatherService {
-  async fetchWeather(location, unit) {
+  async fetchWeather(location, unit, { signal } = {}) {
     try {
       const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(location)}&count=1&language=en&format=json`;
-      const geoRes = await fetch(geoUrl);
+      const geoRes = await fetch(geoUrl, { signal });
       if (!geoRes.ok) throw new Error("Location lookup failed");
       const geoData = await geoRes.json();
       if (!geoData.results || geoData.results.length === 0) {
@@ -22,7 +22,7 @@ export class HttpWeatherService extends WeatherService {
 
       const tempUnit = unit === "f" ? "fahrenheit" : "celsius";
       const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=${tempUnit}`;
-      const weatherRes = await fetch(weatherUrl);
+      const weatherRes = await fetch(weatherUrl, { signal });
       if (!weatherRes.ok) throw new Error("Weather forecast fetch failed");
       const weatherData = await weatherRes.json();
 
